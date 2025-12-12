@@ -84,10 +84,8 @@
   <table id="submissions" class="display nowrap" style="width:100%">
     <thead>
       <tr>
-        <th>Timestamp</th>
         <th>Name</th>
         <th>User ID</th>
-        <th>Email</th>
         <th>Date</th>
         <th>Approved To</th>
         <th>Product</th>
@@ -108,15 +106,9 @@ $(document).ready(function() {
       "dataSrc": "data"
     },
     "columns": [
-      { 
-        "data": "timestamp",
-        "render": function(data) {
-          return data ? data.split("T")[0] : "";
-        }
-      },
+      
       { "data": "name" },
       { "data": "userid" },
-      { "data": "email" },
       { 
         "data": "date",
         "render": function(data) {
