@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Joined Submissions</title>
+
+  <link rel="stylesheet" 
+        href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+
+<h2>Submission Details (Joined)</h2>
+
+<table id="submissions" class="display" style="width:100%">
+  <thead>
+    <tr>
+      <th>Timestamp</th>
+      <th>Name</th>
+      <th>User ID</th>
+      <th>Email</th>
+      <th>Date</th>
+      <th>Approved To</th>
+      <th>Product</th>
+      <th>Size</th>
+      <th>Qty</th>
+    </tr>
+  </thead>
+</table>
+
+<script>
+$(document).ready(function() {
+  $('#submissions').DataTable({
+    "ajax": {
+      "url": "YOUR_WEB_APP_URL_HERE",
+      "dataSrc": "data"
+    },
+    "columns": [
+      { "data": "timestamp" },
+      { "data": "name" },
+      { "data": "userid" },
+      { "data": "email" },
+      { "data": "date" },
+      { "data": "approved_to" },
+      { "data": "product" },
+      { "data": "size" },
+      { "data": "qty" }
+    ]
+  });
+});
+</script>
+
+</body>
+</html>
