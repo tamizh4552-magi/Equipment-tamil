@@ -156,7 +156,7 @@ document.getElementById("gs-form").addEventListener("submit", function(e) {
     fd.append("items", JSON.stringify(items));
 
     // Send to Google Sheet
-    fetch("https://script.google.com/macros/s/AKfycbyN3HR1KZ7cB7oq5qzuo1Zu3eF1nECBM5k4BBbMw5NbERyHoS9BEZ4uf3iLIEbDsTsGsw/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbxZPQ-KmiZcRg5fKXj2eLmRzi_CvMEhhbqzVBjObICX/dev", {
         method: "POST",
         body: fd
     })
@@ -175,4 +175,3 @@ document.getElementById("gs-form").addEventListener("submit", function(e) {
 
 </body>
 </html>
-
