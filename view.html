@@ -9,49 +9,113 @@
 <body class="bg-light p-4">
 
 <div class="container">
-<h3 class="mb-4">Submitted Requests</h3>
+
+<h3 class="mb-3">Submitted Requests</h3>
+
+<!-- 🔹 NEW PRODUCTS TABLE -->
+<div class="card mb-4">
+  <div class="card-header bg-dark text-white">
+    All Products (Summary)
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-bordered table-striped mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Timestamp</th>
+          <th>User ID</th>
+          <th>Product</th>
+          <th>Size</th>
+          <th>Qty</th>
+        </tr>
+      </thead>
+      <tbody id="productTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 🔹 REQUEST CARDS -->
 <div id="out"></div>
 
 <a href="index.html" class="btn btn-secondary mt-3">← Back</a>
+
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbzU4s77fEtKRw8M3GKcyWJkemQ1y4zD_OHsLEGjOFqwC3Oc8ZowTxCMdNI0zBcz4cdaJA/exec";
+const API = "https://script.google.com/macros/s/AKfycbzU4s77fEtKRw8M3GKcyWJkemQ1y4zD_OHsLEGjOFqwC3Oc8ZowTxCMdNI0zBcz4cdaJA/exec?action=view";
 
 fetch(API)
 .then(r => r.json())
-.then(d => show(d))
+.then(d => render(d))
 .catch(e => alert("Fetch failed"));
 
-function show(d){
+function render(d){
+  renderProducts(d.products);
+  renderRequests(d);
+}
+
+function renderProducts(products){
+  let rows = "";
+  products.forEach(p=>{
+    rows += `
+      <tr>
+        <td>${formatDate(p.Timestamp)}</td>
+        <td>${p["Submitted By User ID"]}</td>
+        <td>${p.Product}</td>
+        <td>${p.Size}</td>
+        <td>${p.Qty}</td>
+      </tr>`;
+  });
+  document.getElementById("productTable").innerHTML = rows || "<tr><td colspan='5'>No products</td></tr>";
+}
+
+function renderRequests(d){
   let html = "";
 
   d.requests.forEach(r => {
     const items = d.products.filter(p =>
       p["Submitted By User ID"] === r["User ID"] &&
-      String(p["Timestamp"]) === String(r["Timestamp"])
+      String(p.Timestamp) === String(r.Timestamp)
     );
 
     html += `
-    <div class="card mb-3">
+    <div class="card mb-3 shadow-sm">
       <div class="card-body">
-        <b>${r.Name}</b> (${r["User ID"]})<br>
-        ${r.Email}<br><br>
+        <h5>${r.Name} (${r["User ID"]})</h5>
+        <div><b>Email:</b> ${r.Email}</div>
+        <div><b>Phone:</b> ${r.Phone}</div>
+        <div><b>Date:</b> ${formatDate(r.Date)}</div>
+        <div><b>Approved To:</b> ${r["Approved To"]}</div>
 
-        <table class="table table-sm table-bordered">
-          <tr><th>Product</th><th>Size</th><th>Qty</th></tr>
-          ${items.map(i=>`
+        <table class="table table-sm table-bordered mt-3">
+          <thead class="table-secondary">
             <tr>
-              <td>${i.Product}</td>
-              <td>${i.Size}</td>
-              <td>${i.Qty}</td>
-            </tr>`).join("")}
+              <th>Product</th>
+              <th>Size</th>
+              <th>Qty</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(i=>`
+              <tr>
+                <td>${i.Product}</td>
+                <td>${i.Size}</td>
+                <td>${i.Qty}</td>
+              </tr>`).join("")}
+          </tbody>
         </table>
       </div>
     </div>`;
   });
 
-  document.getElementById("out").innerHTML = html || "No data";
+  document.getElementById("out").innerHTML = html || "No requests";
+}
+</script>
+<script>
+function formatDate(value){
+  if(!value) return "";
+  const d = new Date(value);
+  if (isNaN(d)) return value;
+  return d.toISOString().split("T")[0]; // YYYY-MM-DD
 }
 </script>
 
