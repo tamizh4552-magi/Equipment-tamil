@@ -1,139 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Joined Submissions</title>
+<meta charset="UTF-8">
+<title>View Submissions</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- DataTables CSS -->
-  <link rel="stylesheet" 
-        href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Buttons CSS -->
-  <link rel="stylesheet" 
-        href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-  <!-- DataTables JS -->
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-  <!-- Buttons JS -->
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-
-  <!-- JSZip for Excel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-  <!-- PDFMake for PDF Export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-
-  <style>
-    body {
-      background: #eef1f6;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 40px;
-    }
-
-    .container {
-      max-width: 1300px;
-      margin: auto;
-      background: #fff;
-      padding: 25px 30px;
-      border-radius: 12px;
-      box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      font-size: 26px;
-      color: #333;
-    }
-
-    .dt-buttons button {
-      background: #4e73df !important;
-      color: #fff !important;
-      border-radius: 5px !important;
-      border: none !important;
-      padding: 6px 12px !important;
-      margin-right: 5px;
-    }
-
-    table {
-      width: 100%;
-    }
-  </style>
-
+<style>
+body{
+    background:#f4f6f9;
+    padding:30px;
+}
+.card{
+    border-radius:15px;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
+<h3 class="mb-4">Submitted Requests</h3>
 
-  <h2>Submission Details (Joined)</h2>
+<div id="dataArea"></div>
 
-  <!-- Home Button -->
-  <div style="margin-bottom: 15px; text-align: right;">
-    <a href="index.html" class="btn btn-primary">Home</a>
-  </div>
-
-  <table id="submissions" class="display nowrap" style="width:100%">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>User ID</th>
-        <th>Date</th>
-        <th>Approved To</th>
-        <th>Product</th>
-        <th>Size</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-  </table>
-
+<a href="index.html" class="btn btn-secondary mt-3">← Back to Form</a>
 </div>
 
-
 <script>
-$(document).ready(function() {
-  $('#submissions').DataTable({
-    "ajax": {
-      "url": "https://script.google.com/macros/s/AKfycbyWUxuFgAsNqZcd9504lfvis3M9rFiLrJg-U08dzBrxUg6OpHuulEwRBMXXmmKD7sRL4w/exec",
-      "dataSrc": "data"
-    },
-    "columns": [
-      
-      { "data": "name" },
-      { "data": "userid" },
-      { 
-        "data": "date",
-        "render": function(data) {
-          return data ? data.split("T")[0] : "";
-        }
-      },
-      { "data": "approved_to" },
-      { "data": "product" },
-      { "data": "size" },
-      { "data": "qty" }
-    ],
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQgoa9_ed8bbrzgkdUPLPD6cyJ05ySB7j8tCCdv8Rpe89Jedj-T419FcwQHltgUuz_WQ/exec";
 
-    // enable export buttons
-    dom: 'Bfrtip',
+fetch(SCRIPT_URL)
+.then(res => res.json())
+.then(data => renderData(data))
+.catch(err => alert(err));
 
-    buttons: [
-      { extend: 'excelHtml5', title: 'Submissions' },
-      { extend: 'csvHtml5', title: 'Submissions' },
-      { extend: 'pdfHtml5', title: 'Submissions', orientation: 'landscape', pageSize: 'A4' },
-      { extend: 'print', title: 'Submissions' }
-    ],
+function renderData(data) {
 
-    responsive: true
+  let html = "";
+
+  data.requests.forEach(req => {
+
+    const relatedProducts = data.products.filter(p =>
+      p["Submitted By User ID"] === req["User ID"] &&
+      String(p["Timestamp"]) === String(req["Timestamp"])
+    );
+
+    html += `
+    <div class="card mb-4 shadow-sm">
+      <div class="card-body">
+        <h5>${req["Name"]} (${req["User ID"]})</h5>
+        <p class="mb-1"><b>Email:</b> ${req["Email"]}</p>
+        <p class="mb-1"><b>Phone:</b> ${req["Phone"]}</p>
+        <p class="mb-1"><b>Date:</b> ${req["Date"]}</p>
+        <p class="mb-2"><b>Approved To:</b> ${req["Approved To"]}</p>
+
+        <table class="table table-sm table-bordered mt-3">
+          <thead class="table-dark">
+            <tr>
+              <th>Product</th>
+              <th>Size</th>
+              <th>Qty</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${relatedProducts.map(p => `
+              <tr>
+                <td>${p["Product"]}</td>
+                <td>${p["Size"]}</td>
+                <td>${p["Qty"]}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
   });
-});
+
+  document.getElementById("dataArea").innerHTML = html || "No data found";
+}
 </script>
 
 </body>
