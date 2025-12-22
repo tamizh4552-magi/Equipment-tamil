@@ -1,163 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheet Request Form</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request Form</title>
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            background: linear-gradient(135deg, #2b5876, #4e4376);
-            min-height: 100vh;
-            padding: 30px;
-        }
-        .glass-card {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(15px);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .form-control {
-            background: rgba(255,255,255,0.65);
-            border-radius: 10px;
-        }
-        .table thead {
-            background: #4e4376;
-            color: white;
-        }
-    </style>
+<style>
+body{
+    background: linear-gradient(135deg,#2b5876,#4e4376);
+    min-height:100vh;
+    padding:30px;
+}
+.glass-card{
+    background:rgba(255,255,255,.15);
+    backdrop-filter:blur(15px);
+    border-radius:15px;
+    padding:25px;
+}
+.form-control{border-radius:10px;}
+.table thead{background:#4e4376;color:#fff;}
+</style>
 </head>
+
 <body>
-
 <div class="container">
-    <div class="glass-card">
+<div class="glass-card">
 
-        <h3 class="text-white text-center mb-3">Request Form</h3>
+<h3 class="text-white text-center mb-3">Request Form</h3>
 
-        <form id="gs-form" class="row g-3">
+<form id="gs-form" class="row g-3">
 
-            <div class="col-md-6">
-                <label class="text-light">Name</label>
-                <input type="text" name="name" class="form-control" required>
-            </div>
+<div class="col-md-6">
+<label class="text-light">Name</label>
+<input type="text" name="name" class="form-control" required>
+</div>
 
-            <div class="col-md-6">
-                <label class="text-light">User ID</label>
-                <input type="text" name="userid" class="form-control">
-            </div>
+<div class="col-md-6">
+<label class="text-light">User ID</label>
+<input type="text" name="userid" class="form-control" required>
+</div>
 
-            <div class="col-md-6">
-                <label class="text-light">Email</label>
-                <input type="email" name="email" class="form-control" required>
-            </div>
+<div class="col-md-6">
+<label class="text-light">Email</label>
+<input type="email" name="email" class="form-control" required>
+</div>
 
-            <div class="col-md-6">
-                <label class="text-light">Date</label>
-                <input type="date" name="date" class="form-control">
-            </div>
+<div class="col-md-6">
+<label class="text-light">Phone</label>
+<input type="text" name="phone" class="form-control">
+</div>
 
-            <div class="col-md-12">
-                <label class="text-light">Approved To</label>
-                <input type="text" name="approved_to" class="form-control">
-            </div>
+<div class="col-md-6">
+<label class="text-light">Date</label>
+<input type="date" name="date" class="form-control">
+</div>
 
-            <hr class="text-white">
+<div class="col-md-6">
+<label class="text-light">Approved To</label>
+<input type="text" name="approved_to" class="form-control">
+</div>
 
-            <h5 class="text-white">Products</h5>
+<hr class="text-white">
 
-            <table class="table table-bordered table-light table-striped" id="productTable">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Size</th>
-                        <th>Qty</th>
-                        <th width="60"></th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+<h5 class="text-white">Products</h5>
 
-            <button type="button" class="btn btn-warning" onclick="addRow()">+ Add Product</button>
+<table class="table table-bordered table-light" id="productTable">
+<thead>
+<tr>
+<th>Product</th>
+<th>Size</th>
+<th>Qty</th>
+<th width="60"></th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 
-            <div class="col-12 mt-4">
-                <button class="btn btn-success w-100 py-2 fs-5">Submit</button>
-            </div>
+<button type="button" class="btn btn-warning" onclick="addRow()">+ Add Product</button>
 
-        </form>
-    </div>
+<div class="col-12 mt-4">
+<button class="btn btn-success w-100 py-2 fs-5">Submit</button>
+</div>
+
+</form>
+</div>
 </div>
 
 <!-- Toast -->
 <div class="position-fixed bottom-0 end-0 p-3">
-    <div id="toastSuccess" class="toast bg-success text-white">
-        <div class="toast-header bg-success text-white">
-            <strong class="me-auto">Success</strong>
-            <button class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body">Form submitted successfully</div>
-    </div>
+<div id="toastSuccess" class="toast bg-success text-white">
+<div class="toast-header bg-success text-white">
+<strong class="me-auto">Success</strong>
+<button class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+</div>
+<div class="toast-body">Form submitted successfully</div>
+</div>
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzni4pc3uVkI3_lZxCN7u504amwc9yIceOLTuqaQ0_1pw3URaLds5jMrYXeUrx2-qJqZw/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTHdoiieOBd7MEGVvEoWmdS4E9afJg-KRLp2e0lMAc9c4JMQBotC8QEfVrS1aLePtE1Q/exec";
 
-// Add product row
-function addRow() {
-    const row = `
-        <tr>
-            <td><input type="text" class="form-control product" required></td>
-            <td><input type="text" class="form-control size" required></td>
-            <td><input type="number" class="form-control qty" min="1" required></td>
-            <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">X</button></td>
-        </tr>
-    `;
-    document.querySelector("#productTable tbody").insertAdjacentHTML("beforeend", row);
+// Add row
+function addRow(){
+document.querySelector("#productTable tbody").insertAdjacentHTML("beforeend",`
+<tr>
+<td><input type="text" class="form-control product" required></td>
+<td><input type="text" class="form-control size" required></td>
+<td><input type="number" class="form-control qty" min="1" required></td>
+<td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
+</tr>`);
 }
-
-// Remove row
-function removeRow(btn) {
-    btn.closest("tr").remove();
-}
-
-// Default one row
 addRow();
 
 // Submit
-document.getElementById("gs-form").addEventListener("submit", function(e) {
-    e.preventDefault();
+document.getElementById("gs-form").addEventListener("submit",function(e){
+e.preventDefault();
 
-    let items = [];
-    document.querySelectorAll("#productTable tbody tr").forEach(row => {
-        items.push({
-            product: row.querySelector(".product").value,
-            size: row.querySelector(".size").value,
-            qty: row.querySelector(".qty").value
-        });
-    });
+let items=[];
+document.querySelectorAll("#productTable tbody tr").forEach(r=>{
+items.push({
+product:r.querySelector(".product").value,
+size:r.querySelector(".size").value,
+qty:r.querySelector(".qty").value
+});
+});
 
-    let fd = new FormData(this);
-    fd.append("items", JSON.stringify(items));
+let fd=new FormData(this);
+fd.append("items",JSON.stringify(items));
 
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: fd
-    })
-    .then(res => res.text())
-    .then(() => {
-        this.reset();
-        document.querySelector("#productTable tbody").innerHTML = "";
-        addRow();
-        new bootstrap.Toast(document.getElementById("toastSuccess")).show();
-    })
-    .catch(err => alert("Error: " + err));
+fetch(SCRIPT_URL,{method:"POST",body:fd})
+.then(r=>r.text())
+.then(()=>{
+this.reset();
+document.querySelector("#productTable tbody").innerHTML="";
+addRow();
+new bootstrap.Toast(document.getElementById("toastSuccess")).show();
+})
+.catch(err=>alert(err));
 });
 </script>
 
