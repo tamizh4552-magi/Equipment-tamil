@@ -128,7 +128,7 @@ fetch(SCRIPT_URL + "?action=leads")
 });
 
 /* -------- LOAD PRODUCTS STOCK -------- */
-fetch(SCRIPT_URL + "?action=products") // you need to create a doGet handler returning products stock
+fetch(SCRIPT_URL + "https://script.google.com/macros/s/AKfycbxHilybO_oKXCDXeMIYqFz9hoeaA2Ej5_uQBZZ_Tg9frHl22QK8yzg4nlu6dSqNfR6f/exec?action=products") // you need to create a doGet handler returning products stock
 .then(r => r.json())
 .then(data => { productsStock = data; });
 
@@ -231,3 +231,4 @@ document.getElementById("gs-form").addEventListener("submit",function(e){
 
 </body>
 </html>
+
