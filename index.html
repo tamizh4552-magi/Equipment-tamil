@@ -21,6 +21,7 @@ body{
 }
 .form-control{border-radius:10px;}
 .table thead{background:#4e4376;color:#fff;}
+.stock-info{font-size:0.85rem;color:#555;}
 </style>
 </head>
 
@@ -30,6 +31,7 @@ body{
 
 <h3 class="text-white text-center mb-3">Request Form</h3>
 <div class="text-end mb-3"> <a href="view.html" class="btn btn-info"> 📄 View Submissions </a> </div>
+
 <form id="gs-form" class="row g-3">
 
 <div class="col-md-6">
@@ -75,6 +77,7 @@ body{
 <th>Product</th>
 <th>Size</th>
 <th>Qty</th>
+<th>Stock</th>
 <th width="60"></th>
 </tr>
 </thead>
@@ -107,6 +110,8 @@ body{
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwESOjz1-8W5bh_ArTu3e8EDup0A4lJB9orzihqn4IINqJzWgwy0MYmPE-QuNFToQciGw/exec";
 
+let productsStock = []; // will hold products + size + stock
+
 /* -------- SET TODAY DATE -------- */
 document.querySelector('input[name="date"]').value =
   new Date().toISOString().split("T")[0];
@@ -122,19 +127,58 @@ fetch(SCRIPT_URL + "?action=leads")
   });
 });
 
+/* -------- LOAD PRODUCTS STOCK -------- */
+fetch(SCRIPT_URL + "?action=products") // you need to create a doGet handler returning products stock
+.then(r => r.json())
+.then(data => { productsStock = data; });
+
 /* -------- PRODUCT ROW -------- */
 function addRow(){
-  document.querySelector("#productTable tbody").insertAdjacentHTML("beforeend",`
-    <tr>
-      <td><input type="text" class="form-control product" required></td>
-      <td><input type="text" class="form-control size" required></td>
-      <td><input type="number" class="form-control qty" min="1" required></td>
-      <td>
-        <button type="button" class="btn btn-danger btn-sm"
-          onclick="this.closest('tr').remove()">X</button>
-      </td>
-    </tr>
-  `);
+  const tbody = document.querySelector("#productTable tbody");
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td>
+      <select class="form-control product" required>
+        <option value="">Select Product</option>
+        ${productsStock.map(p=>`<option value="${p.product}">${p.product}</option>`).join("")}
+      </select>
+    </td>
+    <td>
+      <select class="form-control size" required>
+        <option value="">Select Size</option>
+      </select>
+    </td>
+    <td><input type="number" class="form-control qty" min="1" required></td>
+    <td><span class="stock-info">-</span></td>
+    <td>
+      <button type="button" class="btn btn-danger btn-sm">X</button>
+    </td>`;
+
+  tbody.appendChild(tr);
+
+  // Remove row
+  tr.querySelector("button").addEventListener("click",()=>tr.remove());
+
+  // Update Size options on product change
+  const productSelect = tr.querySelector(".product");
+  const sizeSelect = tr.querySelector(".size");
+  const stockSpan = tr.querySelector(".stock-info");
+
+  productSelect.addEventListener("change",()=>{
+    const selectedProduct = productSelect.value;
+    const sizes = productsStock.filter(p=>p.product===selectedProduct);
+    sizeSelect.innerHTML = `<option value="">Select Size</option>` + sizes.map(s=>
+      `<option value="${s.size}" data-stock="${s.stock}">${s.size}</option>`).join("");
+    stockSpan.textContent = "-";
+  });
+
+  // Update stock display on size change
+  sizeSelect.addEventListener("change",()=>{
+    const opt = sizeSelect.selectedOptions[0];
+    if(opt) stockSpan.textContent = opt.dataset.stock;
+    else stockSpan.textContent = "-";
+  });
 }
 addRow();
 
@@ -143,16 +187,24 @@ document.getElementById("gs-form").addEventListener("submit",function(e){
   e.preventDefault();
 
   let items=[];
+  let valid=true;
+
   document.querySelectorAll("#productTable tbody tr").forEach(r=>{
-    items.push({
-      product:r.querySelector(".product").value,
-      size:r.querySelector(".size").value,
-      qty:r.querySelector(".qty").value
-    });
+    const product = r.querySelector(".product").value;
+    const size = r.querySelector(".size").value;
+    const qty = parseInt(r.querySelector(".qty").value,10);
+    const stock = parseInt(r.querySelector(".size").selectedOptions[0]?.dataset.stock || 0,10);
+
+    if(qty > stock){
+      alert(`Quantity for ${product} (${size}) exceeds stock (${stock})`);
+      valid=false;
+      return;
+    }
+
+    items.push({product,size,qty});
   });
 
-  if(items.length === 0){
-    alert("Add at least one product");
+  if(!valid || items.length===0){
     return;
   }
 
@@ -179,6 +231,3 @@ document.getElementById("gs-form").addEventListener("submit",function(e){
 
 </body>
 </html>
-
-
-
