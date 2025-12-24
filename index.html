@@ -30,12 +30,6 @@ body{
 
 <h3 class="text-white text-center mb-3">Request Form</h3>
 
-<div class="text-end mb-3">
-    <a href="view.html" class="btn btn-info">
-        📄 View Submissions
-    </a>
-</div>
-
 <form id="gs-form" class="row g-3">
 
 <div class="col-md-6">
@@ -49,13 +43,16 @@ body{
 </div>
 
 <div class="col-md-6">
-<label class="text-light">Email</label>
-<input type="email" name="email" class="form-control" required>
+<label class="text-light">Team Lead Name</label>
+<select name="team_lead" id="teamLead" class="form-control" required>
+  <option value="">Loading...</option>
+</select>
 </div>
 
 <div class="col-md-6">
 <label class="text-light">Phone</label>
-<input type="text" name="phone" class="form-control">
+<input type="tel" name="phone" class="form-control"
+       pattern="[0-9]{10}" placeholder="10 digit mobile">
 </div>
 
 <div class="col-md-6">
@@ -108,48 +105,77 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTHdoiieOBd7MEGVvEoWmdS4E9afJg-KRLp2e0lMAc9c4JMQBotC8QEfVrS1aLePtE1Q/exec";
+const SCRIPT_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
 
-// Add row
+/* -------- SET TODAY DATE -------- */
+document.querySelector('input[name="date"]').value =
+  new Date().toISOString().split("T")[0];
+
+/* -------- LOAD TEAM LEADS -------- */
+fetch(SCRIPT_URL + "?action=leads")
+.then(r => r.json())
+.then(data => {
+  const sel = document.getElementById("teamLead");
+  sel.innerHTML = `<option value="">Select Team Lead</option>`;
+  data.forEach(l => {
+    sel.innerHTML += `<option value="${l.name}">${l.name}</option>`;
+  });
+});
+
+/* -------- PRODUCT ROW -------- */
 function addRow(){
-document.querySelector("#productTable tbody").insertAdjacentHTML("beforeend",`
-<tr>
-<td><input type="text" class="form-control product" required></td>
-<td><input type="text" class="form-control size" required></td>
-<td><input type="number" class="form-control qty" min="1" required></td>
-<td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button></td>
-</tr>`);
+  document.querySelector("#productTable tbody").insertAdjacentHTML("beforeend",`
+    <tr>
+      <td><input type="text" class="form-control product" required></td>
+      <td><input type="text" class="form-control size" required></td>
+      <td><input type="number" class="form-control qty" min="1" required></td>
+      <td>
+        <button type="button" class="btn btn-danger btn-sm"
+          onclick="this.closest('tr').remove()">X</button>
+      </td>
+    </tr>
+  `);
 }
 addRow();
 
-// Submit
+/* -------- FORM SUBMIT -------- */
 document.getElementById("gs-form").addEventListener("submit",function(e){
-e.preventDefault();
+  e.preventDefault();
 
-let items=[];
-document.querySelectorAll("#productTable tbody tr").forEach(r=>{
-items.push({
-product:r.querySelector(".product").value,
-size:r.querySelector(".size").value,
-qty:r.querySelector(".qty").value
-});
-});
+  let items=[];
+  document.querySelectorAll("#productTable tbody tr").forEach(r=>{
+    items.push({
+      product:r.querySelector(".product").value,
+      size:r.querySelector(".size").value,
+      qty:r.querySelector(".qty").value
+    });
+  });
 
-let fd=new FormData(this);
-fd.append("items",JSON.stringify(items));
+  if(items.length === 0){
+    alert("Add at least one product");
+    return;
+  }
 
-fetch(SCRIPT_URL,{method:"POST",body:fd})
-.then(r=>r.text())
-.then(()=>{
-this.reset();
-document.querySelector("#productTable tbody").innerHTML="";
-addRow();
-new bootstrap.Toast(document.getElementById("toastSuccess")).show();
-})
-.catch(err=>alert(err));
+  let fd=new FormData(this);
+  fd.append("items",JSON.stringify(items));
+
+  fetch(SCRIPT_URL,{method:"POST",body:fd})
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status==="success"){
+      this.reset();
+      document.querySelector("#productTable tbody").innerHTML="";
+      addRow();
+      new bootstrap.Toast(
+        document.getElementById("toastSuccess")
+      ).show();
+    } else {
+      alert(res.message);
+    }
+  })
+  .catch(err=>alert(err));
 });
 </script>
 
 </body>
 </html>
-
