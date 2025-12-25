@@ -1,185 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <title>View Requests</title>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
-
-<style>
-@media print {
-  .no-print { display:none; }
-}
-</style>
 </head>
 
-<body class="bg-light p-4">
-
+<body class="p-4 bg-light">
 <div class="container">
 
-<h3 class="mb-3">Submitted Requests</h3>
+<h4>Submitted Requests</h4>
+<a href="index.html" class="btn btn-secondary mb-3">Back</a>
 
-<!-- 🔍 FILTER BAR -->
-<div class="row g-2 mb-3 no-print">
-  <div class="col-md-4">
-    <input type="text" id="searchInput" class="form-control" placeholder="Search User / Product">
-  </div>
-  <div class="col-md-3">
-    <input type="date" id="fromDate" class="form-control">
-  </div>
-  <div class="col-md-3">
-    <input type="date" id="toDate" class="form-control">
-  </div>
-  <div class="col-md-2 d-grid">
-    <button class="btn btn-success" onclick="exportExcel()">Export Excel</button>
-  </div>
-</div>
-
-<!-- 📋 DATA TABLE -->
-<div class="card mb-4">
-  <div class="card-header bg-dark text-white d-flex justify-content-between">
-    <span>All Products (Summary)</span>
-    <button class="btn btn-light btn-sm no-print" onclick="window.print()">Print</button>
-  </div>
-
-  <div class="card-body p-0">
-    <table id="dtTable" class="table table-bordered table-striped mb-0">
-      <thead class="table-dark">
-        <tr>
-          <th>Name</th>
-          <th>User ID</th>
-          <th>Date</th>
-          <th>Product</th>
-          <th>Size</th>
-          <th>Qty</th>
-        </tr>
-      </thead>
-      <tbody id="productTable"></tbody>
-    </table>
-  </div>
-</div>
-
-<a href="index.html" class="btn btn-secondary no-print">← Back</a>
+<table class="table table-bordered">
+<thead>
+<tr>
+<th>Name</th><th>User ID</th><th>Date</th>
+<th>Product</th><th>Size</th><th>Qty</th>
+</tr>
+</thead>
+<tbody id="rows"></tbody>
+</table>
 
 </div>
-
-<!-- ✅ JS LIBRARIES (ORDER IS IMPORTANT) -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-/* 🔗 API URL (REPLACE WITH YOUR LATEST DEPLOYMENT) */
-const API = "https://script.google.com/macros/s/AKfycbxEiFBeO2D_zB9PHelRPBu2oJZ2Ts_BHOwI_0rf11XKgpBqTkqAEv_pzFEeLyaopaPJtA/exec?action=leads";
+const API = "https://script.google.com/macros/s/AKfycbxchKT7ppigyYLhVkX4gFy3y85phZAEOHfh-kKIANXe9y38s8yyCBLS2XHzHEGBjjLNWA/exec?action=view";
 
-let RAW_DATA = [];
-let dataTable = null;
-
-/* 📅 DATE FORMAT */
-function formatDate(v){
-  if(!v) return "";
-  const d = new Date(v);
-  return isNaN(d) ? v : d.toISOString().split("T")[0];
-}
-
-/* 📥 FETCH DATA */
 fetch(API)
-  .then(r => r.json())
-  .then(d => {
-    RAW_DATA = buildRows(d);
-    render(RAW_DATA);
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Fetch failed – check Apps Script deployment access");
-  });
-
-/* 🔄 MERGE SHEET 1 + SHEET 2 */
-function buildRows(d){
-  return d.products.map(p => {
-
-    const req = d.requests
-      .filter(r => r["User ID"] === p["Submitted By User ID"])
-      .sort((a,b)=> new Date(b.Timestamp) - new Date(a.Timestamp))[0];
-
-    return {
-      name: req?.Name || "",
-      userid: p["Submitted By User ID"],
-      date: req ? formatDate(req.Date) : "",
-      product: p.Product,
-      size: p.Size,
-      qty: p.Qty
-    };
-  });
-}
-
-/* 📊 RENDER DATATABLE */
-function render(data){
-
-  if(dataTable){
-    dataTable.clear().destroy();
-  }
-
-  document.getElementById("productTable").innerHTML =
-    data.map(r => `
-      <tr>
-        <td>${r.name}</td>
-        <td>${r.userid}</td>
-        <td>${r.date}</td>
-        <td>${r.product}</td>
-        <td>${r.size}</td>
-        <td>${r.qty}</td>
-      </tr>
-    `).join("") ||
-    `<tr><td colspan="6" class="text-center">No data</td></tr>`;
-
-  dataTable = new DataTable("#dtTable", {
-    pageLength: 10,
-    order: [[2, "desc"]],
-    lengthMenu: [5,10,25,50]
-  });
-}
-
-/* 🔍 SEARCH + DATE FILTER */
-document.querySelectorAll("#searchInput,#fromDate,#toDate").forEach(el=>{
-  el.addEventListener("input", applyFilter);
+.then(r=>r.json())
+.then(d=>{
+  rows.innerHTML = d.products.map(p=>{
+    const req = d.requests.find(r=>r[2]===p[4]) || [];
+    return `
+    <tr>
+      <td>${req[1]||""}</td>
+      <td>${p[4]}</td>
+      <td>${req[4]||""}</td>
+      <td>${p[1]}</td>
+      <td>${p[2]}</td>
+      <td>${p[3]}</td>
+    </tr>`;
+  }).join("");
 });
-
-function applyFilter(){
-  const q = searchInput.value.toLowerCase();
-  const from = fromDate.value;
-  const to = toDate.value;
-
-  const filtered = RAW_DATA.filter(r=>{
-    const matchText =
-      r.name.toLowerCase().includes(q) ||
-      r.userid.toLowerCase().includes(q) ||
-      r.product.toLowerCase().includes(q);
-
-    const matchDate =
-      (!from || r.date >= from) &&
-      (!to || r.date <= to);
-
-    return matchText && matchDate;
-  });
-
-  render(filtered);
-}
-
-/* 📤 EXPORT CSV */
-function exportExcel(){
-  let csv = "Name,User ID,Date,Product,Size,Qty\n";
-  RAW_DATA.forEach(r=>{
-    csv += `${r.name},${r.userid},${r.date},${r.product},${r.size},${r.qty}\n`;
-  });
-
-  const blob = new Blob([csv], {type:"text/csv"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "requests.csv";
-  a.click();
-}
 </script>
 
 </body>
