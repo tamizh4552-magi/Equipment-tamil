@@ -41,16 +41,26 @@ h3 {
     <h3>📝 Submitted Safety Equipment Requests</h3>
 
     <div class="top-bar">
-        <a href="index.html" class="btn btn-secondary">⬅ Back</a>
+    <a href="index.html" class="btn btn-secondary">⬅ Back</a>
 
-        <input type="text" id="searchInput" class="form-control search-box"
-               placeholder="🔍 Search..." onkeyup="filterTable()">
+    <input type="text" id="searchInput" class="form-control search-box"
+           placeholder="🔍 Search..." onkeyup="filterTable()">
 
-        <div>
-            <button class="btn btn-success me-2" onclick="exportToCSV()">⬇ Export Excel</button>
-            <button class="btn btn-danger" onclick="exportToPDF()">⬇ Download PDF</button>
-        </div>
+    <div>
+        <a href="product-stock.html" class="btn btn-primary me-2">
+            📦 Product Stock
+        </a>
+
+        <button class="btn btn-success me-2" onclick="exportToCSV()">
+            ⬇ Export Excel
+        </button>
+
+        <button class="btn btn-danger" onclick="exportToPDF()">
+            ⬇ Download PDF
+        </button>
     </div>
+</div>
+
 
     <div class="table-responsive">
         <table class="table table-bordered table-striped" id="dataTable">
