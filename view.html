@@ -16,6 +16,7 @@ body {
 h3 {
     color: #343a40;
     margin-bottom: 15px;
+    font-size: 1.5rem;
 }
 .top-bar {
     display: flex;
@@ -31,9 +32,25 @@ h3 {
 .search-box {
     max-width: 300px;
 }
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-box {
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+    .top-bar .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+}
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -41,26 +58,25 @@ h3 {
     <h3>📝 Submitted Safety Equipment Requests</h3>
 
     <div class="top-bar">
-    <a href="index.html" class="btn btn-secondary">⬅ Back</a>
+        <a href="index.html" class="btn btn-secondary">⬅ Back</a>
 
-    <input type="text" id="searchInput" class="form-control search-box"
-           placeholder="🔍 Search..." onkeyup="filterTable()">
+        <input type="text" id="searchInput" class="form-control search-box"
+               placeholder="🔍 Search..." onkeyup="filterTable()">
 
-    <div>
-        <a href="product-stock.html" class="btn btn-primary me-2">
-            📦 Product Stock
-        </a>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="product-stock.html" class="btn btn-primary">
+                📦 Product Stock
+            </a>
 
-        <button class="btn btn-success me-2" onclick="exportToCSV()">
-            ⬇ Export Excel
-        </button>
+            <button class="btn btn-success" onclick="exportToCSV()">
+                ⬇ Export Excel
+            </button>
 
-        <button class="btn btn-danger" onclick="exportToPDF()">
-            ⬇ Download PDF
-        </button>
+            <button class="btn btn-danger" onclick="exportToPDF()">
+                ⬇ Download PDF
+            </button>
+        </div>
     </div>
-</div>
-
 
     <div class="table-responsive">
         <table class="table table-bordered table-striped" id="dataTable">
@@ -117,7 +133,6 @@ async function loadRequests() {
 
 loadRequests();
 
-
 // 🔍 SEARCH FILTER
 function filterTable() {
     const input = document.getElementById("searchInput").value.toLowerCase();
@@ -127,7 +142,6 @@ function filterTable() {
         row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
     });
 }
-
 
 // 📤 EXPORT FILTERED DATA TO CSV
 function exportToCSV() {
@@ -152,7 +166,6 @@ function exportToCSV() {
     a.click();
     URL.revokeObjectURL(url);
 }
-
 
 // 📄 EXPORT FILTERED DATA TO PDF
 function exportToPDF() {
