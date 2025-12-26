@@ -11,7 +11,12 @@
 body{
   background:#f4f6f8;
   padding:20px;
-  font-family:Segoe UI,Tahoma;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+h3 {
+  color: #343a40;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
 }
 .top-bar{
   display:flex;
@@ -19,10 +24,28 @@ body{
   align-items:center;
   flex-wrap:wrap;
   gap:10px;
+  margin-bottom: 15px;
 }
 .search-box{max-width:300px;}
 .low-stock{background:#fff3cd !important;}
 .no-stock{background:#f8d7da !important;}
+@media (max-width:768px){
+  .top-bar{
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .top-bar .search-box{
+    max-width:100%;
+    margin-bottom: 10px;
+  }
+  .top-bar button, .top-bar a{
+    width:100%;
+    margin-bottom:5px;
+  }
+  .table-responsive{
+    font-size: 0.85rem;
+  }
+}
 </style>
 </head>
 
@@ -32,14 +55,14 @@ body{
 
 <h3>📦 Product Stock (Live)</h3>
 
-<div class="top-bar mb-3">
+<div class="top-bar">
   <a href="index.html" class="btn btn-secondary">⬅ Back</a>
 
   <input type="text" id="search" class="form-control search-box"
          placeholder="🔍 Search product / size" onkeyup="filterTable()">
 
-  <div>
-    <button class="btn btn-success me-2" onclick="exportCSV()">⬇ Export Excel</button>
+  <div class="d-flex flex-wrap gap-2">
+    <button class="btn btn-success" onclick="exportCSV()">⬇ Export Excel</button>
     <button class="btn btn-danger" onclick="exportPDF()">⬇ Download PDF</button>
   </div>
 </div>
@@ -59,13 +82,12 @@ body{
 
 </div>
 
-<!-- PDF -->
+<!-- PDF Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
 <script>
-const API =
-"https://script.google.com/macros/s/AKfycbyNaMqWmL1R4pPdRv2EMJahYI4hW503jBkhqPXsjsRxPS9925MXlCrJTnvnEoV_DBoI/exec?action=products";
+const API = "https://script.google.com/macros/s/AKfycbyNaMqWmL1R4pPdRv2EMJahYI4hW503jBkhqPXsjsRxPS9925MXlCrJTnvnEoV_DBoI/exec?action=products";
 
 async function loadStock(){
   const res = await fetch(API);
@@ -90,7 +112,7 @@ loadStock();
 
 /* SEARCH */
 function filterTable(){
-  const v = search.value.toLowerCase();
+  const v = document.getElementById("search").value.toLowerCase();
   document.querySelectorAll("#stockTable tbody tr").forEach(r=>{
     r.style.display = r.innerText.toLowerCase().includes(v) ? "" : "none";
   });
@@ -138,4 +160,3 @@ function exportPDF(){
 
 </body>
 </html>
-
