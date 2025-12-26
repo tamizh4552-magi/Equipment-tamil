@@ -54,7 +54,7 @@ function login() {
   const name = document.getElementById("name").value;
   const userId = document.getElementById("userId").value;
 
-  fetch("PASTE_YOUR_WEB_APP_URL_HERE", {
+  fetch("https://script.google.com/macros/s/AKfycbyY1QHWHcrmjUlX-2Er0Tis_jdqiPCDoK0uqbs3dSCmbfBrHAElGYUsG6F2fnf18MCl/exec", {
     method: "POST",
     body: JSON.stringify({ name, userId })
   })
@@ -74,3 +74,4 @@ function login() {
 
 </body>
 </html>
+
