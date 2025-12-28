@@ -9,41 +9,114 @@
 
 <style>
 body{
-  background:#f4f6f8;
+  background:#f4f6f9;
+  font-family:"Segoe UI",system-ui,sans-serif;
   padding:20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-h3 {
-  color: #343a40;
-  margin-bottom: 15px;
-  font-size: 1.5rem;
+
+/* ===== HEADER ===== */
+.page-header{
+  background:#1f2937;
+  color:#fff;
+  padding:18px 22px;
+  border-radius:14px;
+  margin-bottom:20px;
 }
-.top-bar{
+
+.page-header h4{
+  margin:0;
+  font-weight:700;
+}
+
+.page-header small{
+  opacity:.85;
+}
+
+/* ===== ACTION BAR ===== */
+.action-bar{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:12px;
+  background:#ffffff;
+  padding:14px;
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.06);
+  margin-bottom:15px;
   flex-wrap:wrap;
-  gap:10px;
-  margin-bottom: 15px;
 }
-.search-box{max-width:300px;}
-.low-stock{background:#fff3cd !important;}
-.no-stock{background:#f8d7da !important;}
-@media (max-width:768px){
-  .top-bar{
-    flex-direction: column;
-    align-items: stretch;
+
+/* ===== SEARCH ===== */
+.search-box{
+  max-width:280px;
+}
+
+/* ===== BUTTONS ===== */
+.btn-back{
+  background:#6b7280;
+  color:#fff;
+  font-weight:600;
+  border-radius:10px;
+}
+
+.btn-excel{
+  background:#16a34a;
+  color:#fff;
+  font-weight:700;
+  border-radius:10px;
+}
+
+.btn-pdf{
+  background:#dc2626;
+  color:#fff;
+  font-weight:700;
+  border-radius:10px;
+}
+
+/* ===== CARD ===== */
+.card{
+  border:none;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+/* ===== TABLE ===== */
+.table thead{
+  background:#2563eb;
+  color:#fff;
+  font-size:.85rem;
+  text-transform:uppercase;
+}
+
+.table td{
+  vertical-align:middle;
+  font-size:.9rem;
+}
+
+/* ===== STOCK STATUS ===== */
+.stock-ok{
+  background:#dcfce7 !important;
+  font-weight:700;
+}
+
+.stock-low{
+  background:#fef3c7 !important;
+  font-weight:700;
+}
+
+.stock-none{
+  background:#fee2e2 !important;
+  font-weight:700;
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  .action-bar{
+    flex-direction:column;
+    align-items:stretch;
   }
-  .top-bar .search-box{
+  .search-box{
     max-width:100%;
-    margin-bottom: 10px;
-  }
-  .top-bar button, .top-bar a{
-    width:100%;
-    margin-bottom:5px;
-  }
-  .table-responsive{
-    font-size: 0.85rem;
   }
 }
 </style>
@@ -53,22 +126,39 @@ h3 {
 
 <div class="container">
 
-<h3>📦 Product Stock (Live)</h3>
+<!-- HEADER -->
+<div class="page-header">
+  <h4>📦 Product Stock</h4>
+  <small>Live inventory status & availability</small>
+</div>
 
-<div class="top-bar">
-  <a href="index.html" class="btn btn-secondary">⬅ Back</a>
+<!-- ACTION BAR -->
+<div class="action-bar">
 
-  <input type="text" id="search" class="form-control search-box"
-         placeholder="🔍 Search product / size" onkeyup="filterTable()">
+  <a href="index.html" class="btn btn-back">
+    ⬅ Back
+  </a>
 
-  <div class="d-flex flex-wrap gap-2">
-    <button class="btn btn-success" onclick="exportCSV()">⬇ Export Excel</button>
-    <button class="btn btn-danger" onclick="exportPDF()">⬇ Download PDF</button>
+  <input type="text" id="search"
+         class="form-control search-box"
+         placeholder="🔍 Search product / size"
+         onkeyup="filterTable()">
+
+  <div class="d-flex gap-2 flex-wrap">
+    <button class="btn btn-excel" onclick="exportCSV()">
+      ⬇ Export Excel
+    </button>
+
+    <button class="btn btn-pdf" onclick="exportPDF()">
+      ⬇ Download PDF
+    </button>
   </div>
 </div>
 
+<!-- TABLE CARD -->
+<div class="card">
 <div class="table-responsive">
-<table class="table table-bordered table-striped" id="stockTable">
+<table class="table table-bordered table-striped mb-0" id="stockTable">
 <thead>
 <tr>
   <th>Product</th>
@@ -79,10 +169,11 @@ h3 {
 <tbody id="tbody"></tbody>
 </table>
 </div>
+</div>
 
 </div>
 
-<!-- PDF Libraries -->
+<!-- PDF LIBRARIES -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
@@ -95,9 +186,9 @@ async function loadStock(){
   const tbody = document.getElementById("tbody");
 
   tbody.innerHTML = data.map(p=>{
-    let cls = "";
-    if(p.stock == 0) cls="no-stock";
-    else if(p.stock <= 5) cls="low-stock";
+    let cls="stock-ok";
+    if(p.stock==0) cls="stock-none";
+    else if(p.stock<=5) cls="stock-low";
 
     return `
       <tr class="${cls}">
@@ -112,37 +203,33 @@ loadStock();
 
 /* SEARCH */
 function filterTable(){
-  const v = document.getElementById("search").value.toLowerCase();
-  document.querySelectorAll("#stockTable tbody tr").forEach(r=>{
-    r.style.display = r.innerText.toLowerCase().includes(v) ? "" : "none";
-  });
+  const v=document.getElementById("search").value.toLowerCase();
+  document.querySelectorAll("#stockTable tbody tr")
+    .forEach(r=>r.style.display=r.innerText.toLowerCase().includes(v)?"":"none");
 }
 
-/* CSV EXPORT (FILTERED) */
+/* EXPORT CSV */
 function exportCSV(){
   let csv=[];
   document.querySelectorAll("#stockTable tr").forEach(r=>{
     if(r.style.display==="none") return;
-    let cols=[...r.children].map(c=>`"${c.innerText}"`);
-    csv.push(cols.join(","));
+    csv.push([...r.children].map(c=>`"${c.innerText}"`).join(","));
   });
-
-  const blob=new Blob([csv.join("\n")],{type:"text/csv"});
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
+  a.href=URL.createObjectURL(new Blob([csv.join("\n")],{type:"text/csv"}));
   a.download="Product_Stock.csv";
   a.click();
 }
 
-/* PDF EXPORT (FILTERED) */
+/* EXPORT PDF */
 function exportPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("p","mm","a4");
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF("p","mm","a4");
 
   let body=[];
   document.querySelectorAll("#stockTable tbody tr").forEach(r=>{
     if(r.style.display==="none") return;
-    body.push([...r.children].map(c=>c.innerText));
+    body.push([...r.children].map(td=>td.innerText));
   });
 
   doc.text("Product Stock Report",14,15);
